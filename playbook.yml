@@ -1,0 +1,40 @@
+--- 
+- name: develop provisioning
+  hosts: develop
+  become: yes
+
+  tasks: 
+  - name: Ensure maven package is present 
+    apt:
+     name: maven
+     state: present
+     update_cache: yes
+
+  - name: sync prj is present
+    - synchronize: 
+       src: /home/gendalf/boxfuse-sample-java-springboot-hello
+       dest: /home/gendalf/boxfuse-sample-java-springboot-hello
+
+- name: prod provisioning
+  hosts: prod
+  become: yes
+
+  tasks:
+   - name: Ensure jdk is present
+    apt:
+     name: default-jdk
+     state: present
+     update_cache: yes
+
+   - name: Ensure tomcat is present
+    apt:
+     name: tomcat
+     state: present
+     update_cache: yes
+     
+   - name: ensure file is copied
+      copy: 
+       src: /home/gendalf/boxfuse-sample-java-springboot-hello#/target/hello-1.0.war
+       dest: /var/lib/tomcat9/webapps/
+       owner: root
+       force: yes

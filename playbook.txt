@@ -1,0 +1,31 @@
+--- 
+- name: develop provisioning
+  hosts: develop
+  become: yes
+
+  tasks: 
+  - name: Ensure maven package is present 
+    apt:
+     name: maven
+     state: present
+
+  - name: ensure prj is present
+      copy: 
+       src: /home/gendalf/boxfuse-sample-java-springboot-hello#
+       dest: /home/gendalf/boxfuse-sample-java-springboot-hello#
+
+- name: prod provisioning
+  hosts: prod
+  become: yes
+
+  tasks:
+   - name: Ensure tomcat is present
+   apt:
+    name: tomcat
+    state: present
+
+   - name: ensure file is copied
+      copy: 
+       src: /home/gendalf/boxfuse-sample-java-springboot-hello#/target/hello-1.0.war
+       dest: /var/lib/tomcat9/webapps
+
