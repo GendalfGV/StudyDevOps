@@ -10,7 +10,7 @@
        - python
        - pip
 
-- name: Provisioning developers
+- name: Provisioning developers pc
   hosts: Developers
   become: yes
 
