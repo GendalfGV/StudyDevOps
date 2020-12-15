@@ -1,0 +1,68 @@
+---
+- name: Ensure all need PO
+  hosts: all
+  become: yes
+
+    apt: {{ item }} state=present
+    with_items:
+       - default-jdk
+       - git
+       - python
+       - pip
+
+- name: Provisioning developers
+  hosts: Developers
+  become: yes
+
+  tasks:
+  - name: Ensure maven is present
+    apt:
+     name: maven
+     state: present
+ 
+  - name: deploy git project boxfuse
+    git:  
+     repo: 'https://github.com/boxfuse/boxfuse-sample-java-war-hello.git'
+     dest: /home/user/boxfuse
+     force: yes
+     clone: yes
+
+  - name: create artefact boxfuse
+    command: mvn package
+    args:
+     chdir: /home/user/boxfuse/
+
+  - name: copy artefact to folder my repository
+    copy:
+      src: /home/user/boxfuse/target/hello-1.0.war
+      dest: /home/gendalf/boxfuseartefact/
+
+  - name: deploy artefact to my git repository
+    git:
+      repo: https://github.com/GendalfGV/boxfuseart.git
+      version: master
+      update: yes    
+
+- name: Provisioning production
+hosts: production
+become: yes
+
+  tasks:
+  - name: Ensure  Tomcat9 is present
+    apt:
+      name: tomcat9
+      state: present
+
+  - name: deploy git project myboxfuse artefact
+    git:  
+      repo: 'https://github.com/GendalfGV/StudyDevOps.git'
+      dest: /home/user/myboxfuseartefact/
+      force: yes
+      clone: yes 
+
+  - name: copy artefact to tomcat9
+     copy:
+       src: /home/user/myboxfuseartefact/hello-1.0.war
+       dest: /var/lib/tomcat9/webapps/
+
+   
