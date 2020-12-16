@@ -1,4 +1,46 @@
 ---
+- name: create instances developer&production on AWS
+  hosts: all
+  become: yes
+  
+  tasks:
+    - ec2:
+        key_name: aws_key
+        region: us-east-2
+        instance_type: t2.micro
+        image: ami-0742a572c2ce45ebf
+        wait: yes
+        vpc_subnet_id: subnet-29e63245
+        assign_public_ip: yes
+        instance_tags:
+          tpinst: developer
+        gather_facts: True  
+        state: present
+
+
+
+- name: create instances developer&production on AWS
+
+
+    - ec2:
+          key_name: aws_key
+          region: us-east-2
+          instance_type: t2.micro
+          image: ami-0742a572c2ce45ebf
+          wait: yes
+          vpc_subnet_id: subnet-29e63245
+          assign_public_ip: yes
+          instance_tags:
+            tpinst: production 
+          state: present   
+
+- name: GetInstanses IP
+  - ec2_instance_facts:
+     region: us-east-2
+     filters:
+        "tag:tpinst": developer 
+    register: ec2_metadata    
+
 - name: Ensure all need PO
   hosts: all
   become: yes
@@ -8,7 +50,9 @@
        - default-jdk
        - git
        - python
-       - pip
+       - python-pip
+
+    command: pip install boto   
 
 - name: Provisioning developers pc
   hosts: Developers
