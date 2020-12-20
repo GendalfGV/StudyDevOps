@@ -2,8 +2,9 @@
 - name: create instances developer&production on AWS
   hosts: all
   become: yes
-  
+
   tasks:
+  
     - ec2:
         key_name: aws_key
         region: us-east-2
@@ -16,10 +17,14 @@
           tpinst: developer
         gather_facts: True  
         state: present
+        register: dev
 
+    - name add created developer aws-host to inventory
+      add_host:
+        name: '{{ dev.instances[0].public_ip }}'
+        groups: developer
 
-
-- name: create instances developer&production on AWS
+    - name: create instances developer&production on AWS
 
 
     - ec2:
@@ -32,14 +37,13 @@
           assign_public_ip: yes
           instance_tags:
             tpinst: production 
-          state: present   
+          state: present
+          register: prom
 
-- name: GetInstanses IP
-  - ec2_instance_facts:
-     region: us-east-2
-     filters:
-        "tag:tpinst": developer 
-    register: ec2_metadata    
+    - name add created production aws-host to inventory
+      add_host:
+        name: '{{ prom.instances[0].public_ip }}'
+        groups: developer
 
 - name: Ensure all need PO
   hosts: all
@@ -97,7 +101,7 @@ become: yes
       name: tomcat9
       state: present
 
-  - name: deploy git project myboxfuse artefact
+  - name: clone git project myboxfuse artefact
     git:  
       repo: 'https://github.com/GendalfGV/StudyDevOps.git'
       dest: /home/user/myboxfuseartefact/
